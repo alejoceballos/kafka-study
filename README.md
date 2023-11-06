@@ -9,6 +9,8 @@ course.
 - [Partitions](#partitions)
 - [Offsets](#offsets)
 - [Brokers](#brokers)
+  - [Clusters](#clusters)
+  - [Bootstrap Broker](#bootstrap-broker)
 - [Producers](#producers)
     - [Partition Logic](#partition-logic)
 - [Consumers](#consumers)
@@ -67,9 +69,29 @@ Offsets are not reused, even if its related message had been removed.
 
 ### Brokers
 
-**What are brokers?** They are Kafka SERVERS.
+**What are brokers?** They are Kafka SERVERS identified by an ID. They're called "brokers" because send and receive 
+data.
 
 They can fail, but Kafka allows producers to recover from brokers failures.
+
+They contain (certain) topic partitions.
+
+#### Clusters
+
+**What is a Kafka Cluster?** A set of multiple brokers sharing topic partitions. Clusters may have any amount of brokers 
+allowing horizontal scaling and spreading data throughout the cluster.
+
+Each broker does not have all the data, but only the one it should have.
+
+#### Bootstrap Broker
+
+When connecting to one broker, the client becomes aware of the other brokers belonging to a cluster and can connect to
+any of them. This first broker the client connects is called "Bootstrap Broker".
+
+The lifecycle of a client connection is quite simple:
+1. A client connects to any broker of the cluster;
+2. This "Bootstrap Broker" send a list of all other brokers in the cluster;
+3. The client now uses this information to connect to the broker that has the topic and partition it needs;
 
 ### Producers
 
@@ -77,7 +99,7 @@ They can fail, but Kafka allows producers to recover from brokers failures.
 
 Producers must know in advance:
 - Which partition to write data to (??? but when explaining partitions the author leads us to believe that the default 
-    behavior is Kafka assign the message to a pa0rtition randomly)
+    behavior is Kafka assign the message to a partition randomly)
 - Which broker has this partition
 
 In case a broker is down, Kafka allows the producer to recover from it.
@@ -147,6 +169,8 @@ read offset in case of any error. Kafka keeps track of each consumer group offse
 specific topic called _\_\_consumer_offsets_.
 
 ### Messages
+
+![Message Anatomy](./README.files/Kafka-Study-Message-Anatomy.png)
 
 The data that navigates from producers to consumers.
 
