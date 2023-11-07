@@ -12,6 +12,7 @@ course.
 - [Brokers](#brokers)
   - [Clusters](#clusters)
   - [Bootstrap Broker](#bootstrap-broker)
+  - [Replication](#replication)
 - [Producers](#producers)
     - [Partition Logic](#partition-logic)
 - [Consumers](#consumers)
@@ -29,6 +30,8 @@ form of streams that is manageable and can be monitored.
 ![Kafka Overview](./README.files/Kafka-Study-Overview.png)
 
 ### Topics
+
+![Topic Image](./README.files/Kafka-Study-TOPIC-Image.png)
 
 **What are topics?** Topics are the main mechanism of communication used to store [Messages](#messages), in the form of 
 streams, created by [Producers](#producers) and used by [Consumers](#consumers). Summarizing, topics hold data.
@@ -49,6 +52,8 @@ goes down.
 
 ### Partitions
 
+![Partition Image](./README.files/Kafka-Study-PARTITION-Image.png)
+
 **What are partitions?** Partitions are logical and physical ways to split the data being handled. This allows load 
 balancing and automatic recovery in case of failure. 
 
@@ -67,6 +72,8 @@ There is no limit on how many partitions can fit into a topic.
 
 ### Offsets
 
+![Offsets Image](./README.files/Kafka-Study-OFFSET-Image.png)
+
 **What are offsets?** Offset is the [Message's](#messages) incremental ID in each [Partition](#partitions).
 
 Different messages in different partitions of the same [Topic](#topics) may have the same offset value, but they are not 
@@ -75,6 +82,8 @@ related.
 Offsets are not reused, even if its related message had been removed.  
 
 ### Brokers
+
+![Broker Image](./README.files/Kafka-Study-BROKER-Image.png)
 
 **What are brokers?** They are Kafka SERVERS identified by an ID. They're called "brokers" because send and receive 
 data.
@@ -110,6 +119,8 @@ pulls to and from the previous one's [Topics](#topics) must be redirected to the
 
 ### Producers
 
+![Producer Image](./README.files/Kafka-Study-PRODUCER-Image.png)
+
 **What are producers?** Is a program that writes/produces data to a [Topic](#topics).
 
 Producers must know in advance:
@@ -131,6 +142,8 @@ When sending a message to a [Broker](#brokers), the producer uses a hash algorit
 ![Producer Serialization and Partition Identification](./README.files/Kafka-Study-Producer.png)
 
 ### Consumers
+
+![Consumer Image](./README.files/Kafka-Study-CONSUMER-Image.png)
 
 **What are consumers?** Consumers are responsible for pulling (read/consume) the data from [Topics](#topics).
 
@@ -185,6 +198,8 @@ able to continue from the last read offset in case of any error. Kafka keeps tra
 storing this checkpoint in a specific [Topic](#topics) called _\_\_consumer_offsets_.
 
 ### Messages
+
+![Message Image](./README.files/Kafka-Study-MESSAGE-Image.png)
 
 The data that navigates from [Producers](#producers) to [Consumers](#consumers).
 
