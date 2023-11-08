@@ -7,20 +7,26 @@ course.
 - [What is Kafka?](#what-is-kafka)
 - [Topics](#topics)
   - [Topic Replication Factor](#topic-replication-factor)
+  - [Topic Durability](#topic-durability)
 - [Partitions](#partitions)
 - [Offsets](#offsets)
 - [Brokers](#brokers)
   - [Clusters](#clusters)
   - [Bootstrap Broker](#bootstrap-broker)
   - [Replication](#replication)
+  - [In-Sync Replica (ISR)](#in-sync-replica-isr)
+  - [Leader for a Partition](#leader-for-a-partition)
 - [Producers](#producers)
     - [Partition Logic](#partition-logic)
+    - [Producers Acknowledgement](#producers-acknowledgement)
 - [Consumers](#consumers)
   - [Consumer Group](#consumer-group)
   - [Consumer Offsets](#consumer-offsets)
+  - [Consumer Replica Fetching](#consumers-replica-fetching)
 - [Messages](#messages)
   - [Producer Message](#producer-message)
   - [Messages Serializer](#message-serializer)
+- [Summary](#summary)
 
 ## What is Kafka?
 
@@ -49,6 +55,10 @@ Topics are split in [Partitions](#partitions).
 Kafka keeps topic's data available even when the [Broker](#brokers) responsible for storing it is down. In order to do 
 so, a replication factor number must be set, always greater than 1, so another broker takes place in case the main one 
 goes down.
+
+#### Topic Durability
+
+TBD
 
 ### Partitions
 
@@ -117,6 +127,23 @@ pulls to and from the previous one's [Topics](#topics) must be redirected to the
 
 ![Topic Replication](./README.files/Kafka-Study-Topic-Replication.png)
 
+#### In-Sync Replica (ISR)
+
+If data can be replicated fast enough in order for a second [Broker](#brokers) to have all data from the original one, 
+this broker is called an "in-sync replica" or simply **ISR**.
+
+It allows [Producers](#producers) and [Consumers](#consumers) to keep pushing and pulling Messages. Also, consumers can 
+be configured for fetching from a different broker, even if the [Leader for a Partition](#leader-for-a-partition) is not 
+down (See [Consumer Replica Fetching](#consumers-replica-fetching)).
+
+#### Leader for a Partition
+
+Only one [Broker](#brokers) can serve the [Partition](#partitions) at a time, it is called the "Leader for a Partition",
+and [Producers](#producers) can only send [Messages](#messages) to this broker regardless how many 
+[In-Sync Replica](#in-sync-replica-isr) exist. For [Consumers](#consumers), the **default**  behavior is the same, they consume from the 
+Leader for a Partition, but for version 2.4 and beyond, this default setting can be changed. See 
+[Consumer Replica Fetching](#consumers-replica-fetching) for more details.
+
 ### Producers
 
 ![Producer Image](./README.files/Kafka-Study-PRODUCER-Image.png)
@@ -127,9 +154,12 @@ Producers must know in advance:
 - Which [Partition](#partitions) to write data to
 - Which [Broker](#brokers) has this partition
 
-In case a broker is down, Kafka allows the producer to recover from it.
+Producers can only send [Messages](#messages) to the broker [Leader for a Partition](#leader-for-a-partition).
 
-Producers can assign a key to a [Message](#messages), this key will be related to a specific partition. If no key is 
+In case a broker is down, Kafka allows the producer to recover from it by routing to an 
+[In-sync Replica](#in-sync-replica-isr) broker.
+
+Producers can assign a key to a message, this key will be related to a specific partition. If no key is 
 assigned, the partition will be chosen by a [round-robin](https://en.wikipedia.org/wiki/Round-robin_scheduling) 
 mechanism (partition 0, then 1, the 2, ...) 
 
@@ -141,6 +171,10 @@ When sending a message to a [Broker](#brokers), the producer uses a hash algorit
 
 ![Producer Serialization and Partition Identification](./README.files/Kafka-Study-Producer.png)
 
+#### Producers Acknowledgement
+
+TBD
+
 ### Consumers
 
 ![Consumer Image](./README.files/Kafka-Study-CONSUMER-Image.png)
@@ -150,10 +184,14 @@ When sending a message to a [Broker](#brokers), the producer uses a hash algorit
 Since consumers know the topics they are consuming from, they have the information regarding the [Broker](#brokers) 
 (server).
 
-Consumers don't stop working in case a broker fails.
+[Messages](#messages) are consumed in the order they were inserted in the [Partition](#partitions) (FIFO), but not in
+the order they were inserted between partitions.
 
-[Messages](#messages) are consumed in the order they were inserted in the [Partition](#partitions) (FIFO), but not in 
-the order they were inserted between partitions. 
+Consumers, by default, fetch Messages from the broker [Leader for a Partition](#leader-for-a-partition), but since 
+version 2.4+ this behavior can be configured.
+
+Consumers don't stop working in case a broker fails, it will pull from an [In-sync Replica Broker](#in-sync-replica-isr) 
+instead.
 
 So if: 
 ```
@@ -197,6 +235,14 @@ in real time.
 able to continue from the last read offset in case of any error. Kafka keeps track of each consumer group offset reading 
 storing this checkpoint in a specific [Topic](#topics) called _\_\_consumer_offsets_.
 
+#### Consumers Replica Fetching
+
+Since version 2.4, consumers can be configured to fetch messages from the nearest [Broker](#brokers), as long as it is
+an [In-sync Replica](#in-sync-replica-isr).
+
+It allows to improve latency and reduce costs in case consumers and brokers are close or even in the same data center, 
+for example. 
+
 ### Messages
 
 ![Message Image](./README.files/Kafka-Study-MESSAGE-Image.png)
@@ -228,5 +274,11 @@ Kafka does not accept other values than binary, so the Key and Value are seriali
 
 There are several serializers in Kafka responsible to transform these information into binary, like the basic 
 ones (String, Integer, Float, etc.), and the more complex ones ([Apache Avro](https://avro.apache.org/docs/), 
-[Google Protocol Buffers/a.k.a. Protobuf](https://protobuf.dev/), etc.). 
+[Google Protocol Buffers/a.k.a. Protobuf](https://protobuf.dev/), etc.).
+
+## Summary
+
+TBD
+
+![Overview Details](README.files/Kafka-Study-Overview-Details.png)
 
