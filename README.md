@@ -169,7 +169,7 @@ When sending a message to a [Broker](#brokers), the producer uses a hash algorit
 ([mumur2](https://en.wikipedia.org/wiki/MurmurHash)) applied to the already serialized key to identify the 
 [Partition](#partitions) it will send the [Message](#messages) to.
 
-![Producer Serialization and Partition Identification](./README.files/Kafka-Study-Producer.png)
+![Producer Serialization and Partition Identification](./README.files/Kafka-Study-Producer-Serialization.png)
 
 #### Producers Acknowledgement
 
